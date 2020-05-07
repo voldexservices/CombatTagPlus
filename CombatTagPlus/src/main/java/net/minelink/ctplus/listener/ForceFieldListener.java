@@ -137,7 +137,7 @@ public final class ForceFieldListener implements Listener {
         for (int x = bottomBlockX; x <= topBlockX; x++) {
             for (int z = bottomBlockZ; z <= topBlockZ; z++) {
                 // Location corresponding to current loop
-                Location location = new Location(l.getWorld(), (double) x, l.getY(), (double) z);
+                Location location = new Location(l.getWorld(), x, l.getY(), z);
 
                 // PvP is enabled here, no need to do anything else
                 if (plugin.getHookManager().isPvpEnabledAt(location)) continue;

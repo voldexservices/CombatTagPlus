@@ -1,7 +1,5 @@
 package net.minelink.ctplus;
 
-import java.util.UUID;
-
 import net.minelink.ctplus.compat.api.NpcNameGeneratorFactory;
 import net.minelink.ctplus.compat.api.NpcPlayerHelper;
 import net.minelink.ctplus.hook.Hook;
@@ -19,7 +17,6 @@ import net.minelink.ctplus.task.TagUpdateTask;
 import net.minelink.ctplus.util.BarUtils;
 import net.minelink.ctplus.util.ReflectionUtils;
 import net.minelink.ctplus.util.Version;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,7 +24,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import static org.bukkit.ChatColor.*;
+import java.util.UUID;
+
+import static org.bukkit.ChatColor.GREEN;
+import static org.bukkit.ChatColor.RED;
 
 public final class CombatTagPlus extends JavaPlugin {
 
@@ -96,6 +96,7 @@ public final class CombatTagPlus extends JavaPlugin {
         integrateFactions();
         integrateTowny();
         integrateWorldGuard();
+        integrateArchonGuard();
 
         BarUtils.init();
 
@@ -255,6 +256,34 @@ public final class CombatTagPlus extends JavaPlugin {
             // Let's leave a stack trace in console for reporting
             e.printStackTrace();
         }
+    }
+
+    private void integrateArchonGuard() {
+        if (!getSettings().useArchonGuard()) {
+            return;
+        }
+
+        // check on first tick
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            // Determine if ArchonGuard is loaded
+            Plugin plugin = Bukkit.getPluginManager().getPlugin("ArchonGuard");
+            if (plugin == null) {
+                return;
+            }
+
+            try {
+                // Create and add ArchonGuardHook
+                getHookManager().addHook((Hook) Class.forName("net.minelink.ctplus.archonguard.ArchonGuardHook").newInstance());
+                getLogger().info("Successfully hooked into ArchonGuard!");
+            } catch (Exception e) {
+                // Something went wrong
+                getLogger().warning("**WARNING**");
+                getLogger().warning("Failed to enable ArchonGuard integration due to errors.");
+
+                // Let's leave a stack trace in console for reporting
+                e.printStackTrace();
+            }
+        }, 1);
     }
 
     @Override

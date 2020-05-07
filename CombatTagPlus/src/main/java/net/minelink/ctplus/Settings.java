@@ -1,5 +1,10 @@
 package net.minelink.ctplus;
 
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,11 +21,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import static java.util.concurrent.TimeUnit.*;
 
 public final class Settings {
@@ -34,9 +34,12 @@ public final class Settings {
 
     public void load() {
         Configuration defaults = plugin.getConfig().getDefaults();
-        defaults.set("disabled-worlds", new ArrayList<>());
-        defaults.set("command-blacklist", new ArrayList<>());
-        defaults.set("command-whitelist", new ArrayList<>());
+        if(defaults != null) {
+            defaults.set("disabled-worlds", new ArrayList<>());
+            defaults.set("command-blacklist", new ArrayList<>());
+            defaults.set("command-whitelist", new ArrayList<>());
+        }
+        reload();
     }
 
     public void update() {
@@ -173,12 +176,85 @@ public final class Settings {
         load();
     }
 
+    private int configVersion, latestConfigVersion, tagDuration, logoutWaitTime, npcDespawnTime, forceFieldRadius;
+    private byte forceFieldMaterialDamage;
+    private boolean resetTagOnPearl, playEffect, alwaysSpawn, mobTagging, instantlyKill, untagOnKick, onlyTagAttacker,
+            disableSelfTagging, disableBlockEdit, disableStorageAccess, disableCreativeTags, disableEnderpearls, disableFlying,
+            disableTeleportation, disableCrafting, resetDespawnTimeOnHit, generateRandomName, useBarApi, denySafezone,
+            denySafezoneEnderpearl, useForceFields, untagOnPluginTeleport;
+    private String tagMessage, tagUnknownMessage, untagMessage, logoutCancelledMessage, logoutSuccessMessage, logoutPendingMessage,
+            disableBlockEditMessage, disableStorageAccessMessage, disableEnderpearlsMessage, disableFlyingMessage,
+            disableTeleportationMessage, disableCraftingMessage, randomNamePrefix, killMessage, killMessageItem, barApiEndedMessage,
+            barApiCountdownMessage, forceFieldMaterial, disabledCommandMessage, commandUntagMessage, commandTagMessage;
+    private List<String> commandWhitelist, commandBlacklist, untagOnKickBlacklist, disabledWorlds;
+
+    private void reload() {
+        this.configVersion = plugin.getConfig().getInt("config-version", 0);
+        this.latestConfigVersion = plugin.getConfig().getDefaults().getInt("config-version", 0);
+        this.tagDuration = plugin.getConfig().getInt("tag-duration", 15);
+        this.logoutWaitTime = plugin.getConfig().getInt("logout-wait-time", 10);
+        this.npcDespawnTime = plugin.getConfig().getInt("npc-despawn-time", 60);
+        this.forceFieldRadius = plugin.getConfig().getInt("force-field-radius");
+        this.forceFieldMaterialDamage = (byte) plugin.getConfig().getInt("force-field-material-damage");
+
+        this.resetTagOnPearl = plugin.getConfig().getBoolean("reset-tag-on-pearl");
+        this.playEffect = plugin.getConfig().getBoolean("play-effect");
+        this.alwaysSpawn = plugin.getConfig().getBoolean("always-spawn");
+        this.mobTagging = plugin.getConfig().getBoolean("mob-tagging");
+        this.instantlyKill = plugin.getConfig().getBoolean("instantly-kill");
+        this.untagOnKick = plugin.getConfig().getBoolean("untag-on-kick");
+        this.onlyTagAttacker = plugin.getConfig().getBoolean("only-tag-attacker");
+        this.disableSelfTagging = plugin.getConfig().getBoolean("disable-self-tagging");
+        this.disableBlockEdit = plugin.getConfig().getBoolean("disable-block-edit");
+        this.disableStorageAccess = plugin.getConfig().getBoolean("disable-storage-access");
+        this.disableCreativeTags = plugin.getConfig().getBoolean("disable-creative-tags");
+        this.disableEnderpearls = plugin.getConfig().getBoolean("disable-enderpearls");
+        this.disableFlying = plugin.getConfig().getBoolean("disable-flying");
+        this.disableTeleportation = plugin.getConfig().getBoolean("disable-teleportation");
+        this.disableCrafting =plugin.getConfig().getBoolean("disable-crafting");
+        this.resetDespawnTimeOnHit = plugin.getConfig().getBoolean("reset-despawn-time-on-hit");
+        this.generateRandomName = plugin.getConfig().getBoolean("generate-random-name");
+        this.useBarApi = plugin.getConfig().getBoolean("barapi");
+        this.denySafezone = plugin.getConfig().getBoolean("deny-safezone");
+        this.denySafezoneEnderpearl = plugin.getConfig().getBoolean("deny-safezone-enderpearl");
+        this.useForceFields = plugin.getConfig().getBoolean("force-fields");
+        this.untagOnPluginTeleport = plugin.getConfig().getBoolean("untag-on-plugin-teleport");
+
+        this.tagMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("tag-message", ""));
+        this.tagUnknownMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("tag-unknown-message", ""));
+        this.untagMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("untag-message", ""));
+        this.logoutCancelledMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("logout-cancelled-message", ""));
+        this.logoutSuccessMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("logout-success-message", ""));
+        this.logoutPendingMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("logout-pending-message", ""));
+
+        this.disableBlockEditMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-block-edit-message", ""));
+        this.disableStorageAccessMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-storage-access-message", ""));
+        this.disableEnderpearlsMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-enderpearls-message", ""));
+        this.disableFlyingMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-flying-message", ""));
+        this.disableTeleportationMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-teleportation-message", ""));
+        this.disableCraftingMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-crafting-message", ""));
+        this.randomNamePrefix = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("random-name-prefix", ""));
+        this.killMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("kill-message", ""));
+        this.killMessageItem = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("kill-message-item", ""));
+        this.barApiEndedMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("barapi-ended-message", "&aYou are no longer in combat!"));
+        this.barApiCountdownMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("barapi-countdown-message", "&eCombatTag: &f{remaining}"));
+        this.forceFieldMaterial = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("force-field-material"));
+        this.disabledCommandMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disabled-command-message", ""));
+        this.commandUntagMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("command-untag-message"));
+        this.commandTagMessage = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("command-tag-message"));
+
+        this.commandWhitelist = plugin.getConfig().getStringList("command-whitelist");
+        this.commandBlacklist = plugin.getConfig().getStringList("command-blacklist");
+        this.untagOnKickBlacklist = plugin.getConfig().getStringList("untag-on-kick-blacklist");
+        this.disabledWorlds = plugin.getConfig().getStringList("disabled-worlds");
+    }
+
     public int getConfigVersion() {
-        return plugin.getConfig().getInt("config-version", 0);
+        return configVersion;
     }
 
     public int getLatestConfigVersion() {
-        return plugin.getConfig().getDefaults().getInt("config-version", 0);
+        return latestConfigVersion;
     }
 
     public boolean isOutdated() {
@@ -186,139 +262,127 @@ public final class Settings {
     }
 
     public int getTagDuration() {
-        return plugin.getConfig().getInt("tag-duration", 15);
+        return tagDuration;
     }
 
     public String getTagMessage() {
-        String message = plugin.getConfig().getString("tag-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return tagMessage;
     }
 
     public String getTagUnknownMessage() {
-        String message = plugin.getConfig().getString("tag-unknown-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return tagUnknownMessage;
     }
 
     public String getUntagMessage() {
-        String message = plugin.getConfig().getString("untag-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return untagMessage;
     }
 
     public boolean resetTagOnPearl() {
-        return plugin.getConfig().getBoolean("reset-tag-on-pearl");
+        return resetTagOnPearl;
     }
 
     public boolean playEffect() {
-        return plugin.getConfig().getBoolean("play-effect");
+        return playEffect;
     }
 
     public boolean alwaysSpawn() {
-        return plugin.getConfig().getBoolean("always-spawn");
+        return alwaysSpawn;
     }
 
     public boolean mobTagging() {
-        return plugin.getConfig().getBoolean("mob-tagging");
+        return mobTagging;
     }
 
     public int getLogoutWaitTime() {
-        return plugin.getConfig().getInt("logout-wait-time", 10);
+        return logoutWaitTime;
     }
 
     public String getLogoutCancelledMessage() {
-        String message = plugin.getConfig().getString("logout-cancelled-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return logoutCancelledMessage;
     }
 
     public String getLogoutSuccessMessage() {
-        String message = plugin.getConfig().getString("logout-success-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return logoutSuccessMessage;
     }
 
     public String getLogoutPendingMessage() {
-        String message = plugin.getConfig().getString("logout-pending-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return logoutPendingMessage;
     }
 
     public boolean instantlyKill() {
-        return plugin.getConfig().getBoolean("instantly-kill");
+        return instantlyKill;
     }
 
     public boolean untagOnKick() {
-        return plugin.getConfig().getBoolean("untag-on-kick");
+        return untagOnKick;
     }
 
     public List<String> getUntagOnKickBlacklist() {
-        return plugin.getConfig().getStringList("untag-on-kick-blacklist");
+        return untagOnKickBlacklist;
     }
 
     public boolean onlyTagAttacker() {
-        return plugin.getConfig().getBoolean("only-tag-attacker");
+        return onlyTagAttacker;
     }
 
     public boolean disableSelfTagging() {
-        return plugin.getConfig().getBoolean("disable-self-tagging");
+        return disableSelfTagging;
     }
 
     public boolean disableBlockEdit() {
-        return plugin.getConfig().getBoolean("disable-block-edit");
+        return disableBlockEdit;
     }
 
     public String getDisableBlockEditMessage() {
-        String message = plugin.getConfig().getString("disable-block-edit-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return disableBlockEditMessage;
     }
 
     public boolean disableStorageAccess() {
-        return plugin.getConfig().getBoolean("disable-storage-access");
+        return disableStorageAccess;
     }
 
     public String getDisableStorageAccessMessage() {
-        String message = plugin.getConfig().getString("disable-storage-access-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return disableStorageAccessMessage;
     }
 
     public boolean disableCreativeTags() {
-        return plugin.getConfig().getBoolean("disable-creative-tags");
+        return disableCreativeTags;
     }
 
     public boolean disableEnderpearls() {
-        return plugin.getConfig().getBoolean("disable-enderpearls");
+        return disableEnderpearls;
     }
 
     public String getDisableEnderpearlsMessage() {
-        String message = plugin.getConfig().getString("disable-enderpearls-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return disableEnderpearlsMessage;
     }
 
     public boolean disableFlying() {
-        return plugin.getConfig().getBoolean("disable-flying");
+        return disableFlying;
     }
 
     public String getDisableFlyingMessage() {
-        String message = plugin.getConfig().getString("disable-flying-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return disableFlyingMessage;
     }
 
     public boolean disableTeleportation() {
-        return plugin.getConfig().getBoolean("disable-teleportation");
+        return disableTeleportation;
     }
 
     public String getDisableTeleportationMessage() {
-        String message = plugin.getConfig().getString("disable-teleportation-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return disableTeleportationMessage;
     }
 
     public boolean disableCrafting() {
-        return plugin.getConfig().getBoolean("disable-crafting");
+        return disableCrafting;
     }
 
     public String getDisableCraftingMessage() {
-        String message = plugin.getConfig().getString("disable-crafting-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return disableCraftingMessage;
     }
 
     public int getNpcDespawnTime() {
-        return plugin.getConfig().getInt("npc-despawn-time", 60);
+        return npcDespawnTime;
     }
 
     public int getNpcDespawnMillis() {
@@ -326,84 +390,83 @@ public final class Settings {
     }
 
     public boolean resetDespawnTimeOnHit() {
-        return plugin.getConfig().getBoolean("reset-despawn-time-on-hit");
+        return resetDespawnTimeOnHit;
     }
 
     public boolean generateRandomName() {
-        return plugin.getConfig().getBoolean("generate-random-name");
+        return generateRandomName;
     }
 
     public String getRandomNamePrefix() {
-        return plugin.getConfig().getString("random-name-prefix");
+        return randomNamePrefix;
     }
 
     public String getKillMessage() {
-        String message = plugin.getConfig().getString("kill-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return killMessage;
     }
 
     public String getKillMessageItem() {
-        String message = plugin.getConfig().getString("kill-message-item", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return killMessageItem;
     }
 
     public boolean useBarApi() {
-        return plugin.getConfig().getBoolean("barapi");
+        return useBarApi;
     }
 
     public String getBarApiEndedMessage() {
-        String message = plugin.getConfig().getString("barapi-ended-message", "&aYou are no longer in combat!");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return barApiEndedMessage;
     }
 
     public String getBarApiCountdownMessage() {
-        String message = plugin.getConfig().getString("barapi-countdown-message", "&eCombatTag: &f{remaining}");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return barApiCountdownMessage;
     }
 
     public boolean denySafezone() {
-        return plugin.getConfig().getBoolean("deny-safezone");
+        return denySafezone;
     }
 
     public boolean denySafezoneEnderpearl() {
-        return plugin.getConfig().getBoolean("deny-safezone-enderpearl");
+        return denySafezoneEnderpearl;
     }
 
     public boolean useForceFields() {
-        return plugin.getConfig().getBoolean("force-fields");
+        return useForceFields;
     }
 
     public int getForceFieldRadius() {
-        return plugin.getConfig().getInt("force-field-radius");
+        return forceFieldRadius;
     }
 
     public String getForceFieldMaterial() {
-        return plugin.getConfig().getString("force-field-material");
+        return forceFieldMaterial;
     }
 
     public byte getForceFieldMaterialDamage() {
-        return (byte) plugin.getConfig().getInt("force-field-material-damage");
+        return forceFieldMaterialDamage;
     }
 
     public boolean useFactions() {
-        return plugin.getConfig().getBoolean("factions");
+        return plugin.getConfig().getBoolean("factions", false);
     }
 
     public boolean useTowny() {
-        return plugin.getConfig().getBoolean("towny");
+        return plugin.getConfig().getBoolean("towny", false);
     }
 
     public boolean useWorldGuard() {
-        return plugin.getConfig().getBoolean("worldguard");
+        return plugin.getConfig().getBoolean("worldguard", false);
+    }
+
+    public boolean useArchonGuard() {
+        return plugin.getConfig().getBoolean("archonguard", true);
     }
 
     public List<String> getDisabledWorlds() {
-        return plugin.getConfig().getStringList("disabled-worlds");
+        return disabledWorlds;
     }
 
     public String getDisabledCommandMessage() {
-        String message = plugin.getConfig().getString("disabled-command-message", "");
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return disabledCommandMessage;
     }
 
     public boolean isCommandBlacklisted(String message) {
@@ -413,13 +476,13 @@ public final class Settings {
 
         message = message.toLowerCase();
 
-        for (String command : plugin.getConfig().getStringList("command-whitelist")) {
+        for (String command : commandWhitelist) {
             if (command.equals("*") || message.equals(command) || message.startsWith(command + " ")) {
                 return false;
             }
         }
 
-        for (String command : plugin.getConfig().getStringList("command-blacklist")) {
+        for (String command : commandBlacklist) {
             if (command.equals("*") || message.equals(command) || message.startsWith(command + " ")) {
                 return true;
             }
@@ -429,15 +492,15 @@ public final class Settings {
     }
 
     public boolean untagOnPluginTeleport() {
-        return plugin.getConfig().getBoolean("untag-on-plugin-teleport");
+        return untagOnPluginTeleport;
     }
 
     public String getCommandUntagMessage() {
-        return ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("command-untag-message"));
+        return commandUntagMessage;
     }
     
     public String getCommandTagMessage() {
-        return ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("command-tag-message"));
+        return commandTagMessage;
     }
 
     public String formatDuration(long seconds) {

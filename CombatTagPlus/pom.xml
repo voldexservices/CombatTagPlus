@@ -177,6 +177,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>net.minelink</groupId>
+            <artifactId>CombatTagPlusAG</artifactId>
+            <version>1.3.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>me.confuser</groupId>
             <artifactId>BarAPI</artifactId>
             <version>3.5</version>

@@ -178,7 +178,7 @@ public final class Settings {
 
     private int configVersion, latestConfigVersion, tagDuration, logoutWaitTime, npcDespawnTime, forceFieldRadius;
     private byte forceFieldMaterialDamage;
-    private boolean resetTagOnPearl, playEffect, alwaysSpawn, mobTagging, instantlyKill, untagOnKick, onlyTagAttacker,
+    private boolean resetTagOnPearl, playEffect, alwaysSpawn, mobTagging, instantlyKill, spawnNPC, untagOnKick, onlyTagAttacker,
             disableSelfTagging, disableBlockEdit, disableStorageAccess, disableCreativeTags, disableEnderpearls, disableFlying,
             disableTeleportation, disableCrafting, resetDespawnTimeOnHit, generateRandomName, useBarApi, denySafezone,
             denySafezoneEnderpearl, useForceFields, untagOnPluginTeleport;
@@ -202,6 +202,7 @@ public final class Settings {
         this.alwaysSpawn = plugin.getConfig().getBoolean("always-spawn");
         this.mobTagging = plugin.getConfig().getBoolean("mob-tagging");
         this.instantlyKill = plugin.getConfig().getBoolean("instantly-kill");
+        this.spawnNPC = plugin.getConfig().getBoolean("spawn-npc", false);
         this.untagOnKick = plugin.getConfig().getBoolean("untag-on-kick");
         this.onlyTagAttacker = plugin.getConfig().getBoolean("only-tag-attacker");
         this.disableSelfTagging = plugin.getConfig().getBoolean("disable-self-tagging");
@@ -311,6 +312,10 @@ public final class Settings {
 
     public boolean instantlyKill() {
         return instantlyKill;
+    }
+
+    public boolean spawnNPC() {
+        return spawnNPC;
     }
 
     public boolean untagOnKick() {

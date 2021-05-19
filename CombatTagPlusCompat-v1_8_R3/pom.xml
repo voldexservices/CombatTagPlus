@@ -13,16 +13,16 @@
 
     <repositories>
         <repository>
-            <id>techcable-repo</id>
-            <url>https://repo.techcable.net/content/groups/public/</url>
+            <id>voldex-repo</id>
+            <url>https://m2.voldex.net/repository/voldex-deploy</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.8.4-R0.1-SNAPSHOT</version>
+            <groupId>net.thearchon.servers</groupId>
+            <artifactId>1_8_9</artifactId>
+            <version>1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

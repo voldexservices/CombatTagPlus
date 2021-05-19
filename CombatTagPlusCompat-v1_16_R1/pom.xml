@@ -9,20 +9,26 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>CombatTagPlusCompat-v1_12_R1</artifactId>
-
-    <repositories>
+    <artifactId>CombatTagPlusCompat-v1_16_R1</artifactId>
+    <distributionManagement>
         <repository>
             <id>voldex-repo</id>
             <url>https://m2.voldex.net/repository/voldex-deploy</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>techcable-repo</id>
+            <url>https://repo.techcable.net/content/groups/public/</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>net.thearchon.servers</groupId>
-            <artifactId>1_12_2</artifactId>
-            <version>1.0</version>
+            <groupId>com.tuinity</groupId>
+            <artifactId>tuinity</artifactId>
+            <version>1.16.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
